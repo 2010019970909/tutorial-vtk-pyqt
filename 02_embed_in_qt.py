@@ -1,11 +1,11 @@
 from __future__ import print_function
 import os
 import vtk
-from vtk.qt4.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from PyQt4 import QtCore, QtGui, uic
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from PyQt5 import QtCore, QtGui, Qt, uic
 
 
-class GlyphViewerApp(QtGui.QMainWindow):
+class GlyphViewerApp(Qt.QMainWindow):
     def __init__(self, data_dir):
         #Parent constructor
         super(GlyphViewerApp,self).__init__()
@@ -18,7 +18,7 @@ class GlyphViewerApp(QtGui.QMainWindow):
         self.ui = glyph_ui.Ui_MainWindow()
         self.ui.setupUi(self)
         self.vtk_widget = QGlyphViewer(self.ui.vtk_panel, data_dir)
-        self.ui.vtk_layout = QtGui.QHBoxLayout()
+        self.ui.vtk_layout = Qt.QHBoxLayout()
         self.ui.vtk_layout.addWidget(self.vtk_widget)
         self.ui.vtk_layout.setContentsMargins(0,0,0,0)
         self.ui.vtk_panel.setLayout(self.ui.vtk_layout)
@@ -26,13 +26,13 @@ class GlyphViewerApp(QtGui.QMainWindow):
     def initialize(self):
         self.vtk_widget.start()
 
-class QGlyphViewer(QtGui.QFrame):
+class QGlyphViewer(Qt.QFrame):
     def __init__(self, parent, data_dir):
         super(QGlyphViewer,self).__init__(parent)
 
         # Make tha actual QtWidget a child so that it can be re parented
         interactor = QVTKRenderWindowInteractor(self)
-        self.layout = QtGui.QHBoxLayout()
+        self.layout = Qt.QHBoxLayout()
         self.layout.addWidget(interactor)
         self.layout.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout)
@@ -60,6 +60,7 @@ class QGlyphViewer(QtGui.QFrame):
         renderer.SetBackground(0.2,0.2,0.2)
 
         # Draw Outline
+        """
         outline = vtk.vtkStructuredGridOutlineFilter()
         outline.SetInputData(b0)
         outline_mapper = vtk.vtkPolyDataMapper()
@@ -69,8 +70,10 @@ class QGlyphViewer(QtGui.QFrame):
         outline_actor.GetProperty().SetColor(1,1,1)
         renderer.AddActor(outline_actor)
         renderer.ResetCamera()
+        """
 
         # Draw Outline
+        """
         outline = vtk.vtkStructuredGridOutlineFilter()
         outline.SetInputData(b0)
         outline_mapper = vtk.vtkPolyDataMapper()
@@ -80,13 +83,17 @@ class QGlyphViewer(QtGui.QFrame):
         outline_actor.GetProperty().SetColor(1,1,1)
         renderer.AddActor(outline_actor)
         renderer.ResetCamera()
+        """
 
         # Threshold points
+        
         threshold = vtk.vtkThresholdPoints()
         threshold.SetInputData(b0)
         threshold.ThresholdByUpper(0.5)
+        
 
         # Draw arrows
+        
         arrow = vtk.vtkArrowSource()
         glyphs = vtk.vtkGlyph3D()
         glyphs.SetInputData(b0)
@@ -97,6 +104,7 @@ class QGlyphViewer(QtGui.QFrame):
         glyphs.SetScaleModeToScaleByVector()
         glyphs.SetScaleFactor(0.005)
         glyphs.SetColorModeToColorByVector()
+        
 
         # Mapper
         glyph_mapper =  vtk.vtkPolyDataMapper()
@@ -133,7 +141,7 @@ if __name__ == "__main__":
         with open("glyph_ui.py","w") as py_ui_file:
             uic.compileUi(ui_file,py_ui_file)
 
-    app = QtGui.QApplication([])
+    app = Qt.QApplication([])
     main_window = GlyphViewerApp("volume")
     main_window.show()
     main_window.initialize()
